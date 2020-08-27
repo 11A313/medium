@@ -1,2 +1,4 @@
 # medium
-Dimensions of desired permittivity of the matching medium are calculated
+
+user inputs: material permittivity,liquid_permittivity ,desired_permittivity
+output: necessary infill for desired permittivity
