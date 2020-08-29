@@ -194,8 +194,15 @@ for j = 1 : 4
         if ( and( upperValue > infill , lowerValue < infill ) ) 
             lowSideLength = infillTable(1,cursor);
             highSideLength = infillTable(1,cursor+1);
+            
+            %infill is closer to...
+            if( abs(lowSideLength - infill ) > abs(highSideLength - infill ) )
+                closerSidelengthValue = lowSideLength;
+            else
+                closerSidelengthValue = highSideLength;   
+            end
         end
    end
 
-   fprintf( "for wall thickness %.2fmm, required infill percentage: %.2f (sidelength between %.1f - %.1fmm) \n ", newCatalogue{j}(1,1) ,infill, lowSideLength, highSideLength );
+   fprintf( "for wall thickness %.2fmm, required infill percentage: %.2f (sidelength between %.1f - %.1fmm) closer to %.1fmm \n ", newCatalogue{j}(1,1) ,infill, lowSideLength, highSideLength, closerSidelengthValue );
 end
