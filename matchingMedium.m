@@ -7,6 +7,11 @@ infillTable = infillTable';
 percentages = infillTable( 2:wallThicknessNumber , 2:sideLengthNumber )*100/(47*47) ;
 infillTable( 2:wallThicknessNumber , 2:sideLengthNumber ) = percentages;
 
+
+catalogue{1,1} = xlsread('honeycombEpsilon_wallPermittivity1_wallThickness1mm.xlsx');
+catalogue{1,2} = xlsread('honeycombEpsilon_wallPermittivity1_wallThickness1.5mm.xlsx');
+catalogue{1,3} = xlsread('honeycombEpsilon_wallPermittivity1_wallThickness2mm.xlsx');
+catalogue{1,4} = xlsread('honeycombEpsilon_wallPermittivity1_wallThickness3mm.xlsx');
 catalogue{2,1} = xlsread('honeycombEpsilon_wallPermittivity2_wallThickness1mm.xlsx');
 catalogue{2,2} = xlsread('honeycombEpsilon_wallPermittivity2_wallThickness1.5mm.xlsx');
 catalogue{2,3} = xlsread('honeycombEpsilon_wallPermittivity2_wallThickness2mm.xlsx');
@@ -41,7 +46,7 @@ catalogue{9,3} = xlsread('honeycombEpsilon_wallPermittivity9_wallThickness2mm.xl
 catalogue{9,4} = xlsread('honeycombEpsilon_wallPermittivity9_wallThickness3mm.xlsx');
 
 
-PERM = 2.7;   %material permittivity
+PERM = 1.22;   %material permittivity
 liquid_permittivity = 60;
 desired_permittivity = 40;
 
@@ -49,8 +54,8 @@ flag = 0;
 %catalogue generator
 if( PERM > 8 )
     PERM = 8;
-elseif(PERM < 2)
-    PERM = 2;
+elseif(PERM < 1)
+    PERM = 1;
 end
 if( round(PERM) == PERM )
     %do nothing
