@@ -1,11 +1,25 @@
+PERM = 2.7;   %material permittivity
+liquid_permittivity = 60;
+desired_permittivity = 30;
+
+%Do not touch below!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 filename = 'infill_hexagon.xlsx';
 infillTable = xlsread(filename);
 infillTable = infillTable';
 
-%infillTable's mm^22 is replaced with percentages
+%infillTable's mm^2 is replaced with percentages
 [ wallThicknessNumber sideLengthNumber] = size(infillTable);
 percentages = infillTable( 2:wallThicknessNumber , 2:sideLengthNumber )*100/(47*47) ;
 infillTable( 2:wallThicknessNumber , 2:sideLengthNumber ) = percentages;
+
+extra_filename = 'extra_hexagon_infill.xlsx';
+extra_infillTable = xlsread(extra_filename);
+%extra_infillTable's mm^2 is replaced with percentages
+[ wallThicknessNumber sideLengthNumber] = size(extra_infillTable);
+percentages = extra_infillTable( 2:wallThicknessNumber , 2:sideLengthNumber )*100/(47*47) ;
+extra_infillTable( 2:wallThicknessNumber , 2:sideLengthNumber ) = percentages;
 
 
 catalogue{1,1} = xlsread('honeycombEpsilon_wallPermittivity1_wallThickness1mm.xlsx');
@@ -46,9 +60,7 @@ catalogue{9,3} = xlsread('honeycombEpsilon_wallPermittivity9_wallThickness2mm.xl
 catalogue{9,4} = xlsread('honeycombEpsilon_wallPermittivity9_wallThickness3mm.xlsx');
 
 
-PERM = 1.22;   %material permittivity
-liquid_permittivity = 60;
-desired_permittivity = 40;
+
 
 flag = 0;
 %catalogue generator
@@ -181,27 +193,28 @@ legend('Wall Thickness: 1mm',' ','Wall Thickness: 1.5mm',' ','Wall Thickness: 2m
 
 [ rowNumberInfill, columnNumberInfill ] = size( infillTable );
 fprintf( "Target Permittivity: %.2f F/m \n", desired_permittivity );
+infill = zeros(1,4);
 for j = 1 : 4
-   infill = ( desired_permittivity - a0(j) ) / a1(j);
+   infill(j) = ( desired_permittivity - a0(j) ) / a1(j);
       
    wall_thickness = newCatalogue{j}(1,1);
  
    wallThicknessIndexConfirm = infillTable(:,1) == wall_thickness;
    wallThicknessIndex = find( wallThicknessIndexConfirm , 1);
    
-   
    lowSideLength = "Nan";
    highSideLength = "Check Infill Table";
+   closerSidelengthValue = "Nan";
    for cursor = 2 : (columnNumberInfill-1)
         upperValue =  infillTable(wallThicknessIndex,cursor);
         lowerValue =  infillTable(wallThicknessIndex,cursor+1);
 
-        if ( and( upperValue > infill , lowerValue < infill ) ) 
+        if ( and( upperValue > infill(j) , lowerValue < infill(j) ) ) 
             lowSideLength = infillTable(1,cursor);
             highSideLength = infillTable(1,cursor+1);
             
             %infill is closer to...
-            if( abs(lowSideLength - infill ) > abs(highSideLength - infill ) )
+            if( abs(lowerValue - infill(j) ) > abs(upperValue - infill(j) ) )
                 closerSidelengthValue = lowSideLength;
             else
                 closerSidelengthValue = highSideLength;   
@@ -209,5 +222,33 @@ for j = 1 : 4
         end
    end
 
-   fprintf( "for wall thickness %.2fmm, required infill percentage: %.2f (sidelength between %.1f - %.1fmm) closer to %.1fmm \n ", newCatalogue{j}(1,1) ,infill, lowSideLength, highSideLength, closerSidelengthValue );
+   fprintf( "for wall thickness %.2fmm, required infill percentage: %.2f (sidelength between %.1f - %.1fmm) closer to %.1fmm \n ", newCatalogue{j}(1,1) ,infill(j), lowSideLength, highSideLength, closerSidelengthValue );
+end
+
+%extra_infillTable
+infill_average = sum( infill ) / 4 ; %average of infills
+[ extra_rowInfill, extra_columnInfill ] = size( extra_infillTable );
+fprintf("Further estimations by average infill %.2f:\n" , infill_average );
+for j = 4:5
+        
+      lowSideLength = "Nan";
+      highSideLength = "Check Infill Table";
+      closerSidelengthValue = "Nan";
+      for cursor = 2 : extra_columnInfill - 1
+          extra_higherValue = extra_infillTable(j,cursor);
+          extra_lowerValue = extra_infillTable(j,cursor+1);
+          if and( extra_lowerValue < infill_average , extra_higherValue > infill_average )
+              lowSideLength = extra_infillTable(1,cursor);
+              highSideLength = extra_infillTable(1,cursor + 1);
+              
+              %infill is closer to...
+              if( abs(extra_lowerValue - infill_average ) > abs(extra_higherValue - infill_average ) )
+                  closerSidelengthValue = lowSideLength;
+            else
+                  closerSidelengthValue = highSideLength; 
+             end
+          end
+ 
+      end
+      fprintf( "for wall thickness %.2fmm, with AVERAGE infill percentage  (sidelength between %.1f - %.1fmm) closer to %.1fmm \n ", j , lowSideLength, highSideLength, closerSidelengthValue );
 end
