@@ -1,5 +1,5 @@
 PERM = 2.7;   %material permittivity
-liquid_permittivity = 60;
+liquid_permittivity = 50;
 desired_permittivity = 30;
 
 %Do not touch below!
@@ -177,22 +177,17 @@ for j= 1:4
     x_model = myInfill(1,1)+5 : -0.5 : (myInfill(length(myInfill),1) - 5);
     y_model = a1(j) .*x_model + a0(j);
     hold on;
-    plot( myInfill , myCatalogue,'x', x_model, y_model );
+    plot( myInfill , myCatalogue,'x', x_model, y_model , 'MarkerSize',12 );
     xlabel({'Infill %'});
-    ylabel({'Permittivity','(F/m)'});
-    title({'Liquid Permittivity(F/m) ', string(liquid_permittivity), 'Material Permittivity(F/m) ', string(PERM) })
+    ylabel({'Effective Dielectric Constant'});
+    title(['Liquid Dielectric Constant '+ string(liquid_permittivity), 'Material Dielectric Constant '+ string(PERM) ])
 end
 hold off
 legend('Wall Thickness: 1mm',' ','Wall Thickness: 1.5mm',' ','Wall Thickness: 2mm',' ','Wall Thickness: 3mm',' ');
 
-% plot( myInfill(1) , myCatalogue(1),'x', x_model(1), y_model(1), myInfill(2) , myCatalogue(2),'x', x_model(2), y_model(2),myInfill(3) , myCatalogue(3),'x', x_model(3), y_model(3),myInfill(4) , myCatalogue(4),'x', x_model(4), y_model(4) );
-% xlabel({'Infill %'})
-% ylabel({'Permittivity','(F/m)'})
-% legend('Wall Thickness: 1mm',' ','Wall Thickness: 1.5mm',' ','Wall Thickness: 2mm',' ','Wall Thickness: 3mm',' ');
-
 
 [ rowNumberInfill, columnNumberInfill ] = size( infillTable );
-fprintf( "Target Permittivity: %.2f F/m \n", desired_permittivity );
+fprintf( "Target Permittivity: %.2f  \n", desired_permittivity );
 infill = zeros(1,4);
 for j = 1 : 4
    infill(j) = ( desired_permittivity - a0(j) ) / a1(j);
@@ -228,7 +223,7 @@ end
 %extra_infillTable
 infill_average = sum( infill ) / 4 ; %average of infills
 [ extra_rowInfill, extra_columnInfill ] = size( extra_infillTable );
-fprintf("Further estimations by average infill %.2f:\n" , infill_average );
+fprintf("Further estimations by average infill %.2f:\n " , infill_average );
 for j = 4:5
         
       lowSideLength = "Nan";
@@ -250,5 +245,5 @@ for j = 4:5
           end
  
       end
-      fprintf( "for wall thickness %.2fmm, with AVERAGE infill percentage  (sidelength between %.1f - %.1fmm) closer to %.1fmm \n ", j , lowSideLength, highSideLength, closerSidelengthValue );
+      fprintf("for wall thickness %.2fmm, with AVERAGE infill percentage  (sidelength between %.1f - %.1fmm) closer to %.1fmm \n ", j , lowSideLength, highSideLength, closerSidelengthValue );
 end
